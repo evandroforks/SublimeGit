@@ -69,6 +69,10 @@ class GitDeleteBranchCommand(GitBranchCommand):
     command_to_run_after_branch = ['branch', '-d']
 
 
+class GitForceDeleteBranchCommand(GitDeleteBranchCommand):
+    command_to_run_after_branch = ['branch', '-D']
+
+
 class GitNewBranchCommand(GitWindowCommand):
     def run(self):
         self.get_window().show_input_panel(
@@ -80,7 +84,12 @@ class GitNewBranchCommand(GitWindowCommand):
         if branchname.strip() == "":
             self.panel("No branch name provided")
             return
-        self.run_command(['git', 'checkout', '-b', branchname])
+        self.run_command(['git', 'checkout', '-b', branchname], self.branch_done)
+
+    def branch_done(self, result):
+        self.panel(result)
+        for view in self.window.views():
+            view.run_command("git_branch_status")
 
 
 class GitTrackRemoteBranchCommand(GitBranchCommand):
